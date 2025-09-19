@@ -13,29 +13,57 @@ const floorCollisions2D = [];
 for(let i = 0; i < floorCollisions.length; i += 36) {
 	floorCollisions2D.push(floorCollisions.slice(i, i+36));
 };
-console.log(floorCollisions2D);
+// console.log(floorCollisions2D);
+
+const platformCollisions2D = [];
+for(let i = 0; i < platformCollisions.length; i += 36) {
+	platformCollisions2D.push(platformCollisions.slice(i, i+36));
+};
+// console.log(platformCollisions2D);
 
 
 const collisionBlocks = []
-floorCollisions2D.forEach((row) => {
-	row.forEach((symbol) => {
+floorCollisions2D.forEach((row, y) => {
+	row.forEach((symbol, x) => {
 		if(symbol === 192) {
-			console.log('draw a block');
+			// console.log('draw a block');
 			collisionBlocks.push(
 				new CollisionBlock({position: {
-					x: 0,
-					y: 0,
+					x: x * 16,
+					y: y * 16,
 				}})
 			)
 		}
 	})
 })
 
+const collisionPlatforms = []
+platformCollisions2D.forEach((row, y) => {
+	row.forEach((symbol, x) => {
+		if(symbol === 192) {
+			collisionPlatforms.push(
+				new CollisionPlatform({position: {
+					x: x * 16,
+					y: y * 16,
+				}})
+			)
+		}
+	})
+})
+
+// console.log(collisionBlocks);
+
+
 const gravity = 0.5;
 
 
-const player = new Player({x: 0, y:0})
-const player2 = new Player({x: 300, y:300})
+const player = new Player({
+	position:{
+		x: 100,
+		y: 0
+	},
+	collisionBlocks,
+})
 
 
 const keys = {
@@ -65,15 +93,21 @@ function animate() {
 	c.scale(4, 4)
 	c.translate(0, -background.image.height + scaledCanvas.height)
 	background.update()
-	c.restore()
+
+	collisionBlocks.forEach((collisionBlock) => {collisionBlock.update()})
+	collisionPlatforms.forEach((collisionPlatform) => {collisionPlatform.update()})
+
 	player.update();
-	player2.update();
 
 	player.velocity.x = 0;
 	if (keys.d.pressed) player.velocity.x = 5
 	else if(keys.a.pressed) player.velocity.x = -5
 
-	collisionBlocks.forEach((block) => {block.update()})
+	c.restore()
+
+
+
+
 }
 
 
@@ -88,7 +122,7 @@ window.addEventListener('keydown', (event) => {
 			keys.a.pressed = true;
 			break;
 		case 'w':
-			player.velocity.y = -20;
+			player.velocity.y = -8;
 	} 
 })
 
