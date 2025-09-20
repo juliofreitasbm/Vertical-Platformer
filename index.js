@@ -37,15 +37,18 @@ floorCollisions2D.forEach((row, y) => {
 	})
 })
 
-const collisionPlatforms = []
+const platformCollisionBlocks = []
 platformCollisions2D.forEach((row, y) => {
 	row.forEach((symbol, x) => {
 		if(symbol === 192) {
-			collisionPlatforms.push(
-				new CollisionPlatform({position: {
-					x: x * 16,
-					y: y * 16,
-				}})
+			platformCollisionBlocks.push(
+				new CollisionBlock({
+					position: {
+						x: x * 16,
+						y: y * 16,
+					},
+					height: 4
+				})
 			)
 		}
 	})
@@ -54,7 +57,7 @@ platformCollisions2D.forEach((row, y) => {
 // console.log(collisionBlocks);
 
 
-const gravity = 0.5;
+const gravity = 0.1;
 
 
 const player = new Player({
@@ -63,6 +66,7 @@ const player = new Player({
 		y: 300
 	},
 	collisionBlocks,
+	platformCollisionBlocks,
 	imageSrc: './img/warrior/Idle.png',
 	frameRate: 8,
 	animations: {
@@ -71,8 +75,18 @@ const player = new Player({
 			frameRate: 8,
 			frameBuffer: 3,
 		},
+		IdleLeft: {
+			imageSrc: './img/warrior/IdleLeft.png',
+			frameRate: 8,
+			frameBuffer: 3,
+		},
 		Run: {
 			imageSrc: './img/warrior/Run.png',
+			frameRate: 8,
+			frameBuffer: 5,
+		},
+		RunLeft: {
+			imageSrc: './img/warrior/RunLeft.png',
 			frameRate: 8,
 			frameBuffer: 5,
 		},
@@ -80,9 +94,19 @@ const player = new Player({
 			imageSrc: './img/warrior/Jump.png',
 			frameRate: 2,
 			frameBuffer: 3,
+		},
+		JumpLeft: {
+			imageSrc: './img/warrior/JumpLeft.png',
+			frameRate: 2,
+			frameBuffer: 3,
 		},		
 		Fall: {
 			imageSrc: './img/warrior/Fall.png',
+			frameRate: 2,
+			frameBuffer: 3,
+		},
+		FallLeft: {
+			imageSrc: './img/warrior/FallLeft.png',
 			frameRate: 2,
 			frameBuffer: 3,
 		},
@@ -119,7 +143,7 @@ function animate() {
 	background.update()
 
 	collisionBlocks.forEach((collisionBlock) => {collisionBlock.update()})
-	collisionPlatforms.forEach((collisionPlatform) => {collisionPlatform.update()})
+	platformCollisionBlocks.forEach((platformCollisionBlock) => {platformCollisionBlock.update()})
 
 	player.update();
 
@@ -127,14 +151,30 @@ function animate() {
 	if (keys.d.pressed) {
 		player.switchSprite('Run')
 		player.velocity.x = 2
+		player.direction = 'right'
+
 	}
-	else if(keys.a.pressed) player.velocity.x = -2
+	else if(keys.a.pressed) {
+		player.switchSprite('RunLeft')
+		player.velocity.x = -2
+		player.direction = 'left'
+
+	}
 	else if(player.velocity.y === 0) {
-		player.switchSprite('Idle')
+		if(player.direction === 'right') player.switchSprite('Idle')
+		else player.switchSprite('IdleLeft')
 	}
 
-	if(player.velocity.y < 0) player.switchSprite('Jump')
-	else if (player.velocity.y > 0) player.switchSprite('Fall')
+	if(player.velocity.y < 0) {
+		if(player.direction === 'right') player.switchSprite('Jump')
+		else player.switchSprite('JumpLeft')
+	}
+	else if (player.velocity.y > 0){
+		if(player.direction === 'right') player.switchSprite('Fall')
+		else player.switchSprite('FallLeft')
+
+		if(player.jumpCount > 1) player.jumpCount = 1
+	} 
 
 	c.restore()
 }
@@ -151,7 +191,10 @@ window.addEventListener('keydown', (event) => {
 			keys.a.pressed = true;
 			break;
 		case 'w':
-			player.velocity.y = -8;
+			if(player.jumpCount > 0) {
+				player.velocity.y = -3.2;
+				player.jumpCount--;
+			}
 	} 
 })
 
