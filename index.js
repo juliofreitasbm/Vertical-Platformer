@@ -4,6 +4,15 @@ const c = canvas.getContext('2d');
 canvas.width = 1024
 canvas.height = 576
 
+// Deactivate WAD message
+imgWAD = document.getElementById('wad');
+setTimeout(() => {
+	imgWAD.classList.add('fade-out');
+},5000)
+setTimeout(() => {
+	imgWAD.style.display = 'none';
+},6000)
+
 const scaledCanvas = {
 	width: canvas.width/4,
 	height: canvas.height/4
@@ -131,6 +140,14 @@ const background = new Sprite({
 	imageSrc: './img/background.png'
 })
 
+const backgroundImageHeight = 432
+const camera = {
+	position: {
+		x: 0,
+		y: -backgroundImageHeight + scaledCanvas.height,
+	}
+}
+
 function animate() {
 	window.requestAnimationFrame(animate);
 
@@ -139,12 +156,13 @@ function animate() {
 
 	c.save()
 	c.scale(4, 4)
-	c.translate(0, -background.image.height + scaledCanvas.height)
+	c.translate(camera.position.x, camera.position.y)
 	background.update()
 
-	collisionBlocks.forEach((collisionBlock) => {collisionBlock.update()})
-	platformCollisionBlocks.forEach((platformCollisionBlock) => {platformCollisionBlock.update()})
+	// collisionBlocks.forEach((collisionBlock) => {collisionBlock.update()})
+	// platformCollisionBlocks.forEach((platformCollisionBlock) => {platformCollisionBlock.update()})
 
+	player.checkForHorizontalCanvasCollision()
 	player.update();
 
 	player.velocity.x = 0;
@@ -152,13 +170,13 @@ function animate() {
 		player.switchSprite('Run')
 		player.velocity.x = 2
 		player.direction = 'right'
-
+		player.shouldPanCameraToTheLeft({canvas, camera})
 	}
 	else if(keys.a.pressed) {
 		player.switchSprite('RunLeft')
 		player.velocity.x = -2
 		player.direction = 'left'
-
+		player.shouldPanCameraToTheRight({canvas, camera})
 	}
 	else if(player.velocity.y === 0) {
 		if(player.direction === 'right') player.switchSprite('Idle')
@@ -168,11 +186,15 @@ function animate() {
 	if(player.velocity.y < 0) {
 		if(player.direction === 'right') player.switchSprite('Jump')
 		else player.switchSprite('JumpLeft')
+
+		player.shouldPanCameraDown({canvas, camera})
 	}
 	else if (player.velocity.y > 0){
 		if(player.direction === 'right') player.switchSprite('Fall')
 		else player.switchSprite('FallLeft')
 
+
+		player.shouldPanCameraUp({canvas, camera})
 		if(player.jumpCount > 1) player.jumpCount = 1
 	} 
 

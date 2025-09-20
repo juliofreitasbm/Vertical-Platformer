@@ -8,6 +8,18 @@
 	}
 	body {
 		background-color: black;
+		position: relative;
+	}
+	img {
+		position: absolute;
+		left: 750px;
+		top: 10px;
+		width: 260px;
+		opacity: 1;
+		transition: opacity 500ms ease-in-out;
+	}
+	.fade-out {
+		opacity: 0;
 	}
 </style>
 
@@ -17,7 +29,10 @@
 	<title>Learning Vertical Platform</title>
 </head>
 <body>
-	<canvas></canvas>	
+	<canvas>
+	</canvas>	
+
+	<img id="wad" src="img/wad.png" alt="WAD para mover">
 
 	<script src="./js/utils.js"></script>
 	<script src="./js/classes/CollisionBlock.js"></script>

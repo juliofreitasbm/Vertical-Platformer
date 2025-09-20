@@ -55,23 +55,73 @@ class Player extends Sprite{
 		this.frameRate = this.animations[key].frameRate
 	}
 
+	checkForHorizontalCanvasCollision() {
+		if(player.direction == 'right' && this.hitbox.position.x + this.hitbox.width >= 576)
+			this.velocity.x = 0
+
+		if(player.direction == 'left' && this.hitbox.position.x <= 0)
+			this.velocity.x = 0
+	}
+
+	shouldPanCameraToTheLeft({canvas, camera}) {
+		const cameraboxRightSide = this.camerabox.position.x + this.camerabox.width
+		const scaledDownCanvasWidth = canvas.width / 4
+
+		if(cameraboxRightSide >= 576) return
+
+		if (cameraboxRightSide >= scaledDownCanvasWidth + Math.abs(camera.position.x)) {
+			camera.position.x -= this.velocity.x
+		}
+	}
+
+	shouldPanCameraToTheRight({canvas, camera}) {
+		const cameraboxLeftSide = this.camerabox.position.x
+
+		if(cameraboxLeftSide <= 0) return
+
+		if (cameraboxLeftSide <= Math.abs(camera.position.x)) {
+			camera.position.x -= this.velocity.x
+		}
+	}
+
+	shouldPanCameraDown({canvas, camera}) {
+		const cameraboxTopSide = this.camerabox.position.y
+
+		if(cameraboxTopSide + this.velocity.y <= 0) return
+
+		if (cameraboxTopSide <= Math.abs(camera.position.y)) {
+			camera.position.y -= this.velocity.y
+		}
+	}
+
+	shouldPanCameraUp({canvas, camera}) {
+		const cameraboxDownSide = this.camerabox.position.y + this.camerabox.height
+		const scaledDownCanvasHeight = canvas.height / 4
+
+		if(cameraboxDownSide + this.velocity.y >= 432) return
+
+		if (cameraboxDownSide >= scaledDownCanvasHeight + Math.abs(camera.position.y)) {
+			camera.position.y -= this.velocity.y
+		}
+	}
 
 	update() {
 		this.updateFrames()
 		this.updateHitbox()
 		this.updateCamerabox()
 
-		// draws out the image
-		c.fillStyle  = 'rgba(0, 255, 0, 0.2)'
-		c.fillRect(this.position.x, this.position.y, this.width, this.height)
 
-		// draws out the hitbox
-		c.fillStyle  = 'rgba(255, 0, 0, 0.2)'
-		c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height)
+		// // draws out the image
+		// c.fillStyle  = 'rgba(0, 255, 0, 0.2)'
+		// c.fillRect(this.position.x, this.position.y, this.width, this.height)
 
-		// draws out the camerabox
-		c.fillStyle  = 'rgba(0, 0, 255, 0.2)'
-		c.fillRect(this.camerabox.position.x, this.camerabox.position.y, this.camerabox.width, this.camerabox.height)
+		// // draws out the hitbox
+		// c.fillStyle  = 'rgba(255, 0, 0, 0.2)'
+		// c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height)
+
+		// // draws out the camerabox
+		// c.fillStyle  = 'rgba(0, 0, 255, 0.2)'
+		// c.fillRect(this.camerabox.position.x, this.camerabox.position.y, this.camerabox.width, this.camerabox.height)
 
 
 		this.draw()
@@ -86,23 +136,21 @@ class Player extends Sprite{
 
 	updateHitbox() {
 		this.hitbox = {
+			...this.hitbox,
 			position: {
 				x: this.position.x + 32,
 				y: this.position.y + 26,
 			},
-			width: 16,
-	 		height: 27,
 		}
 	}
 
 	updateCamerabox() {
 		this.camerabox = {
+			...this.camerabox,
 			position: {
 				x: this.hitbox.position.x - (this.camerabox.width - this.hitbox.width)/2,
 				y: this.hitbox.position.y - (this.camerabox.height - this.hitbox.height)/2,
 			},
-			width: 200,
-			height: 80,
 		}
 	}
 
@@ -189,19 +237,9 @@ class Player extends Sprite{
 
 					const offset = this.hitbox.position.y - this.position.y + this.hitbox.height
 
-					// if(this.hitbox.position.y + this.hitbox.height <= platformCollisionBlock.position.y)
 						this.position.y = platformCollisionBlock.position.y - offset - 0.01
 					break;
 				}
-
-				// if(this.velocity.y < 0) {
-				// 	this.velocity.y = 0
-
-				// 	const offset = this.hitbox.position.y - this.position.y 
-
-				// 	this.position.y = platformCollisionBlock.position.y + platformCollisionBlock.height - offset + 0.01
-				// 	break;
-				// }
 			}
 		}
 	}
