@@ -23,8 +23,8 @@ class Player extends Sprite{
 				x: this.position.x,
 				y: this.position.y,
 			},
-			width: 10,
-			height: 10,
+			width: 16,
+			height: 27,
 		}
 
 		this.animations = animations
@@ -34,6 +34,15 @@ class Player extends Sprite{
 			image.src = this.animations[key].imageSrc
 
 			this.animations[key].image = image
+		}
+
+		this.camerabox = {
+			position: {
+				x: this.hitbox.position.x,
+				y: this.hitbox.position.y,
+			},
+			width: 200,
+			height: 80,
 		}
 	}
 
@@ -50,14 +59,19 @@ class Player extends Sprite{
 	update() {
 		this.updateFrames()
 		this.updateHitbox()
+		this.updateCamerabox()
 
-		// // draws out the image
-		// c.fillStyle  = 'rgba(0, 255, 0, 0.2)'
-		// c.fillRect(this.position.x, this.position.y, this.width, this.height)
+		// draws out the image
+		c.fillStyle  = 'rgba(0, 255, 0, 0.2)'
+		c.fillRect(this.position.x, this.position.y, this.width, this.height)
 
-		// // draws out the hitbox
-		// c.fillStyle  = 'rgba(255, 0, 0, 0.2)'
-		// c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height)
+		// draws out the hitbox
+		c.fillStyle  = 'rgba(255, 0, 0, 0.2)'
+		c.fillRect(this.hitbox.position.x, this.hitbox.position.y, this.hitbox.width, this.hitbox.height)
+
+		// draws out the camerabox
+		c.fillStyle  = 'rgba(0, 0, 255, 0.2)'
+		c.fillRect(this.camerabox.position.x, this.camerabox.position.y, this.camerabox.width, this.camerabox.height)
 
 
 		this.draw()
@@ -73,11 +87,22 @@ class Player extends Sprite{
 	updateHitbox() {
 		this.hitbox = {
 			position: {
-				x: this.position.x + 35,
+				x: this.position.x + 32,
 				y: this.position.y + 26,
 			},
-			width: 14,
-			height: 27,
+			width: 16,
+	 		height: 27,
+		}
+	}
+
+	updateCamerabox() {
+		this.camerabox = {
+			position: {
+				x: this.hitbox.position.x - (this.camerabox.width - this.hitbox.width)/2,
+				y: this.hitbox.position.y - (this.camerabox.height - this.hitbox.height)/2,
+			},
+			width: 200,
+			height: 80,
 		}
 	}
 
